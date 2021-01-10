@@ -1,0 +1,42 @@
+GET http://192.249.18.208:3000/contacts/getAll
+###
+GET http://192.249.18.208:3000/images/getAll
+
+###
+GET http://192.249.18.208:3000/contacts/5ffa9b037b2fb9423dc30806
+###
+GET http://192.249.18.208:3000/images
+
+
+###
+POST http://192.249.18.208:3000/contacts/post
+Content-Type: application/json
+
+{
+    "name": "test01",
+    "phoneNum": "01"
+}
+###
+POST http://192.249.18.208:3000/images/post
+Content-Type: multipart/form-data
+
+{
+    "imageName": "testImage",
+    "image": ""
+}
+
+###
+DELETE http://192.249.18.208:3000/contacts/delete/5ffa9ed8ad22fe49ec92b69b
+
+###
+DELETE http://192.249.18.208:3000/contacts/deleteAll
+
+###
+PUT http://192.249.18.208:3000/contacts/put/5ff9ee9a011bbf3ecd0cdcac
+Content-Type: application/json
+
+{
+    "name": "Heejayy_2_2_2",
+    "phoneNum": "000"
+}
+
