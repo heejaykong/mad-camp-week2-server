@@ -2,103 +2,200 @@ const express = require('express');
 const router = express.Router();
 const Image = require('../models/image');
 
+var multer, storage, path, crypto;
+multer = require('multer')
+path = require('path');
+crypto = require('crypto');
+
+var form =
+"<!DOCTYPE HTML><html><body>" +
+  "<form method='post' action='/upload' enctype='multipart/form-data'>" +
+    "<input type='file' name='upload'/>" +
+    // "<input type='submit'>" + 
+  "</form>" +
+"</body></html>";
+
+router.get('/', function (req, res){
+  try {
+    res.writeHead(200, {'Content-Type': 'text/html' });
+    res.end(form);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+const fs = require('fs');
+storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: function(req, file, cb) {
+    return crypto.pseudoRandomBytes(16, function(err, raw) {
+      if (err) {
+        return cb(err);
+      }
+      return cb(null, "" + (raw.toString('hex')) + (path.extname(file.originalname)));
+    });
+  }
+});
+
+// Post files
+router.post(
+  "/upload",
+  multer({
+    storage: storage
+  }).single('upload'), function(req, res) {
+    try {
+      const reqFile = JSON.stringify(req.file);
+      const reqBody = JSON.stringify(req.body);
+      
+      console.log(`req.file: ${reqFile}`);
+      console.log(`req.body: ${reqBody}`);
+      res.redirect("/uploads/" + req.file.filename);
+      console.log(req.file.filename);
+      return res.status(201).end();
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  });
+
+router.get('/uploads/:upload', function (req, res){
+  file = req.params.upload;
+  console.log(req.params.upload);
+  var img = fs.readFileSync(__dirname + "/uploads/" + file);
+  res.writeHead(200, {'Content-Type': 'image/png' });
+  res.end(img, 'binary');
+
+});
+
 // Get All
 router.get('/getAll', async (req, res) => {
   try {
-    const users = await User.find();
-    // res.json(users);
+    const images = await Image.find();
+    // res.json(images);
     console.log("get all 요청했음")
-    res.send(users);
+    res.send(images);
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
-  // User.findAll()
-  //   .then((users) => {
-  //     if (!users.length) return res.status(404).send({ err: 'User not found' });
-  //     res.send(`find successfully: ${users}`);
+  // Image.findAll()
+  //   .then((images) => {
+  //     if (!images.length) return res.status(404).send({ err: 'Image not found' });
+  //     res.send(`find successfully: ${images}`);
   //   })
   //   .catch(err => res.status(500).send(err));
 });
 
-// Get One by id
-router.get('/:id', getUser, (req, res) => {
-  // User.findOneByPhoneNum(req.params.phoneNum)
-  //   .then((user) => {
-  //     if (!user) return res.status(404).send({ err: 'User not found' });
-  //     res.send(`findOne successfully: ${user}`);
-  //   })
-  //   .catch(err => res.status(500).send(err));
+// // Get One by id(original code)
+// router.get('/:id', getImage, (req, res) => {
+//   // Image.findOneByPhoneNum(req.params.phoneNum)
+//   //   .then((image) => {
+//   //     if (!image) return res.status(404).send({ err: 'image not found' });
+//   //     res.send(`findOne successfully: ${image}`);
+//   //   })
+//   //   .catch(err => res.status(500).send(err));
 
-  // res.json(res.user);
-  // res.send(res.user.name);
-  console.log(`get one by id\n ${res.user}`);
-  res.send(res.user);
-});
+//   // res.json(res.image);
+//   // res.send(res.image.name);
+//   console.log(`get one by id\n ${res.image}`);
+//   res.send(res.image);
+// });
 
-// Create new user
-router.post('/post', async (req, res) => {
-  const user = new User({
-    name: req.body.name,
-    phoneNum: req.body.phoneNum
-    // profileImage: req.body.profileImage
-  })
-  try{
-    console.log(`name is ${req.body.name}`);
-    console.log(`phoneNum is ${req.body.phoneNum}`);
+// // Create new image(original code)
+// router.post('/post', upload.single('images'), async function (req, res, next) {
+//     const image = new Image({
+//       imageName: req.body.imageName,
+//       image: req.body.image
+//     })
+//     try {
+//       console.log(`imageName is ${req.body.imageName}`);
+//       console.log(`image is ${req.body.image}`);
+
+//       console.log(`image saved file info: ${req.file}`)
+      
+//       console.log("포스트 성공!!!!!");
+//       const newImage = await image.save();
+//       console.log("after save");
+//       // res.send(req.body.name);
+//       // res.send(req.body.phoneNum);
+//       if (newImage._id){
+//         // res.send(JSON.stringify(newImage._id));
+//         console.log(JSON.stringify(newImage._id));
+//       } else {
+//         console.log("id of image is null");
+//       }
+//       res.status(201).json(newImage);
+  
+//     } catch (err) {
+//       console.log(err.message);
+//       res.status(400).json({message: err.message});
+//     }
+//   // req.file 은 `avatar` 라는 필드의 파일 정보입니다.
+//   // 텍스트 필드가 있는 경우, req.body가 이를 포함할 것입니다.
+// })
+
+// // Create new image(original code)
+// router.post('/post', async (req, res) => {
+//   const image = new Image({
+//     imageName: req.body.imageName,
+//     image: req.body.image
+//     // profileImage: req.body.profileImage
+//   })
+//   try {
+//     console.log(`imageName is ${req.body.imageName}`);
+//     console.log(`image is ${req.body.image}`);
     
-    console.log("포스트 성공!!!!!");
-    const newUser = await user.save();
-    console.log("after save");
-    // res.send(req.body.name);
-    // res.send(req.body.phoneNum);
-    if (user._id){
-      res.send(JSON.stringify(user._id));
-      console.log(JSON.stringify(user._id));
-    } else {
-      console.log("id of user is null");
-    }
+//     console.log("포스트 성공!!!!!");
+//     const newImage = await image.save();
+//     console.log("after save");
+//     // res.send(req.body.name);
+//     // res.send(req.body.phoneNum);
+//     if (newImage._id){
+//       // res.send(JSON.stringify(newImage._id));
+//       console.log(JSON.stringify(newImage._id));
+//     } else {
+//       console.log("id of image is null");
+//     }
+//     res.status(201).json(newImage);
 
-    res.status(201).json(newUser);
-  } catch (err) {
-    console.log(err.message);
-    res.status(400).json({message: err.message});
-  }
-});
+//   } catch (err) {
+//     console.log(err.message);
+//     res.status(400).json({message: err.message});
+//   }
+// });
 
 // Update by id
-router.put('/put/:id', getUser, async (req, res) => {
+router.put('/put/:id', getImage, async (req, res) => {
   if (req.body.name != null) {
-    res.user.name = req.body.name;
+    res.image.name = req.body.name;
   }
   if (req.body.phoneNum != null) {
-    res.user.phoneNum = req.body.phoneNum;
+    res.image.phoneNum = req.body.phoneNum;
   }
   // if (req.body.profileImage != null) {
-  //   res.user.profileImage = req.body.profileImage;
+  //   res.image.profileImage = req.body.profileImage;
   // }
   try {
-    const updatedUser = await res.user.save();
-    // res.json(updatedUser);  
-    console.log("update user");
-    res.send(updatedUser);
+    const updatedImage = await res.image.save();
+    // res.json(updatedImage);  
+    console.log("update image");
+    res.send(updatedImage);
   } catch (err) {
     res.status(400).json({message: err.message});
   }
-  // User.updateByPhoneNum(req.params.phoneNum, req.body)
-  //   .then(user => res.send(user))
+  // Image.updateByPhoneNum(req.params.phoneNum, req.body)
+  //   .then(image => res.send(image))
   //   .catch(err => res.status(500).send(err));
 });
 
 // Delete by id
-router.delete('/delete/:id', getUser, async (req, res) => {
+router.delete('/delete/:id', getImage, async (req, res) => {
   try {
-    console.log(`deleted user ㅎㅎ\n ${res.user}`);
-    await res.user.remove();
-    res.json({ message: "Deleted user" });
+    console.log(`deleted image ㅎㅎ\n ${res.image}`);
+    await res.image.remove();
+    res.json({ message: "Deleted image" });
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-  // User.deleteByPhoneNum(req.params.phoneNum)
+  // Image.deleteByPhoneNum(req.params.phoneNum)
   //   .then(() => res.sendStatus(200))
   //   .catch(err => res.status(500).send(err));
 });
@@ -106,29 +203,29 @@ router.delete('/delete/:id', getUser, async (req, res) => {
 // Delete All
 router.delete('/deleteAll', async (req, res) => {
   try {
-    const users = await User.remove();
-    // await res.user.remove();
-    res.json(users);
+    const images = await Image.remove();
+    // await res.image.remove();
+    res.json(images);
     res.json({message: "deleted all~~~"});
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
-  // User.deleteByPhoneNum(req.params.phoneNum)
+  // Image.deleteByPhoneNum(req.params.phoneNum)
   //   .then(() => res.sendStatus(200))
   //   .catch(err => res.status(500).send(err));
 });
 
-async function getUser(req, res, next){
-  let user;
+async function getImage(req, res, next){
+  let image;
   try {
-    user = await User.findById(req.params.id);
-    if (user == null) {
-      return res.status(404).json({ message: 'Cannot find User' });
+    image = await Image.findById(req.params.id);
+    if (image == null) {
+      return res.status(404).json({ message: 'Cannot find Image' });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-  res.user = user;
+  res.image = image;
   next();
 }
 

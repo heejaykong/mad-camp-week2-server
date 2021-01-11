@@ -5,7 +5,6 @@
 // ENV
 require('dotenv').config();
 require('./models/contact');
-// require('dotenv/config');
 
 // DEPENDENCIES
 const express = require('express');
@@ -17,8 +16,8 @@ const mongoose = require('mongoose');
 const port = process.env.PORT || 3000;
 
 //Body-parser
-// app.use(bodyParser.urlencoded({extended:false}));
-// app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
 app.use(express.json());
 
 const contactsRouter = require('./routes/contacts');
@@ -55,7 +54,7 @@ app.use(function(req, res, next) {
     var approve ={'approve_id':'FAIL','approve_pw':'FAIL'};
     var paramId = req.body.userid;
     var paramPassword = req.body.password;
-    // console.log('id : '+paramId+'  pw : '+paramPassword);
+    console.log('id : '+paramId+'  pw : '+paramPassword);
     //아이디 일치여부 flag json 데이터입니다.
     if(paramId == 'test01' && paramPassword == '123') approve.id = 'success';
     res.send(approve.id);

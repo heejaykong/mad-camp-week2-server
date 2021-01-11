@@ -8,8 +8,8 @@ const ImageSchema = new Schema({
     //   data: Buffer,
     //   contentType: String
     // }
-    imageName: String,
-    image: Buffer
+    imageName: {type: String},
+    image: {type: String}
   },
   {
     timestamps: true

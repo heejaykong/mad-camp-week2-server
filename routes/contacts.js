@@ -21,7 +21,7 @@ router.get('/getAll', async (req, res) => {
 });
 
 // Get One by id
-router.get('/:id', getContact, (req, res) => {
+router.get('/get/:id', getContact, (req, res) => {
   // Contact.findOneByPhoneNum(req.params.phoneNum)
   //   .then((contact) => {
   //     if (!contact) return res.status(404).send({ err: 'Contact not found' });
@@ -36,29 +36,38 @@ router.get('/:id', getContact, (req, res) => {
 });
 
 // Create new contact
-router.post('/post', async (req, res) => {
+router.post('/post/:name/:phoneNum', async (req, res) => {
   const contact = new Contact({
-    name: req.body.name,
-    phoneNum: req.body.phoneNum
+    name: req.params.name,
+    phoneNum: req.params.phoneNum
     // profileImage: req.body.profileImage
   })
-  try{
-    console.log(`name is ${req.body.name}`);
-    console.log(`phoneNum is ${req.body.phoneNum}`);
-    
+  try {
+    console.log(`name is ${req.params.name}`);
+    console.log(`phoneNum is ${req.params.phoneNum}`);
+
+    console.log(contact.name);
+    console.log(contact.phoneNum);
+
     console.log("포스트 성공!!!!!");
     const newContact = await contact.save();
     console.log("after save");
     // res.send(req.body.name);
     // res.send(req.body.phoneNum);
-    if (contact._id){
-      res.send(JSON.stringify(contact._id));
-      console.log(JSON.stringify(contact._id));
-    } else {
-      console.log("id of contact is null");
-    }
+    // if (contact._id){
+    //   res.send(JSON.stringify(contact._id));
+    //   console.log(JSON.stringify(contact._id));
+    // } else {
+    //   console.log("id of contact is null");
+    // }
+    // console.log(newContact._id);
+    // res.send(newContact._id);
 
+    // console.log(newContact._id)
+    // res.send(newContact._id);
+    
     res.status(201).json(newContact);
+    // res.status(201).send(newContact._id);
   } catch (err) {
     console.log(err.message);
     res.status(400).json({message: err.message});
@@ -66,20 +75,28 @@ router.post('/post', async (req, res) => {
 });
 
 // Update by id
-router.put('/put/:id', getContact, async (req, res) => {
-  if (req.body.name != null) {
-    res.contact.name = req.body.name;
+router.put('/put/:id/:name/:phoneNum', getContact, async (req, res) => {
+  if (req.params.name != null) {
+    res.contact.name = req.params.name;
   }
-  if (req.body.phoneNum != null) {
-    res.contact.phoneNum = req.body.phoneNum;
+  if (req.params.phoneNum != null) {
+    res.contact.phoneNum = req.params.phoneNum;
   }
+  
+  // if (req.body.name != null) {
+  //   res.contact.name = req.body.name;
+  // }
+  // if (req.body.phoneNum != null) {
+  //   res.contact.phoneNum = req.body.phoneNum;
+  // }
   // if (req.body.profileImage != null) {
   //   res.contact.profileImage = req.body.profileImage;
   // }
   try {
     const updatedContact = await res.contact.save();
     // res.json(updatedContact);  
-    console.log("update contact");
+    console.log("update contact:");
+    console.log(updatedContact);
     res.send(updatedContact);
   } catch (err) {
     res.status(400).json({message: err.message});
