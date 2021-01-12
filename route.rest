@@ -5,19 +5,20 @@ GET http://192.249.18.208:3000/images/getAll
 ###
 GET http://192.249.18.208:3000/contacts/get/5ffc229a325aaa6b7b9bba87
 ###
-GET http://192.249.18.208:3000/images
+GET http://192.249.18.208:3000/uploads/acd1d894ff59a93bc94400a412b6ccd4.JPEG
 
 
 ###
 # POST http://192.249.18.208:3000/contacts/post
-# Content-Type: application/json
+###
+POST http://192.249.18.208:3000/contacts/post/test01/0999999
+Content-Type: application/json
 
-# {
-#     "name": "test01",
-#     "phoneNum": "01"
-# }
-POST http://192.249.18.208:3000/contacts/post/test01/0987634123
-# Content-Type: application/json
+{
+    "name": "test01",
+    "phoneNum": "736475678099856747",
+    "url": "rulrkdslfkh/sadkf./sdkljf"
+}
 
 ###
 POST http://192.249.18.208:3000/images/upload
@@ -29,7 +30,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://192.249.18.208:3000/contacts/delete/5ffa9ed8ad22fe49ec92b69b
+DELETE http://192.249.18.208:3000/contacts/delete/5ffd2a425cac1436e00ce610/klj
 
 ###
 DELETE http://192.249.18.208:3000/contacts/deleteAll
@@ -42,4 +43,12 @@ PUT http://192.249.18.208:3000/contacts/put/5ffa9b82c9b979438d89fbb2/KCH/1212121
 #     "name": "Heejayy_2_2_2",
 #     "phoneNum": "000"
 # }
+###
+PUT http://192.249.18.208:3000/images/put/5ffd2a425cac1436e00ce610/heejay/000/sdf
+Content-Type: multipart/form-data
 
+{
+    "name": "ㅋㅋㅋ",
+    "phoneNum": "dummy",
+    "url": "updatedURL"
+}

@@ -32,14 +32,13 @@ storage = multer.diskStorage({
       if (err) {
         return cb(err);
       }
-      return cb(null, "" + (raw.toString('hex')) + (path.extname(file.originalname)));
+      return cb(null, "" + (raw.toString('hex')) + (path.extname(file.originalname))+".JPEG");
     });
   }
 });
 
 // Post files
-router.post(
-  "/upload",
+router.post("/upload",
   multer({
     storage: storage
   }).single('upload'), function(req, res) {
@@ -49,6 +48,7 @@ router.post(
       
       console.log(`req.file: ${reqFile}`);
       console.log(`req.body: ${reqBody}`);
+      
       res.redirect("/uploads/" + req.file.filename);
       console.log(req.file.filename);
       return res.status(201).end();
@@ -57,13 +57,17 @@ router.post(
     }
   });
 
-router.get('/uploads/:upload', function (req, res){
-  file = req.params.upload;
-  console.log(req.params.upload);
-  var img = fs.readFileSync(__dirname + "/uploads/" + file);
-  res.writeHead(200, {'Content-Type': 'image/png' });
-  res.end(img, 'binary');
-
+router.get('/uploads/:filename', function (req, res){
+  try{
+    file = req.params.filename;
+    console.log(`filename is ${req.params.filename}`);
+    var img = fs.readFileSync(__dirname + "/../uploads/" + file);
+    console.log(`file path is: ${__dirname}/uploads/${file} !!!!`)
+    res.writeHead(200, {'Content-Type': 'image/jpg' });
+    res.end(img, 'binary');
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
 });
 
 // Get All
@@ -170,20 +174,13 @@ router.put('/put/:id', getImage, async (req, res) => {
   if (req.body.phoneNum != null) {
     res.image.phoneNum = req.body.phoneNum;
   }
-  // if (req.body.profileImage != null) {
-  //   res.image.profileImage = req.body.profileImage;
-  // }
   try {
     const updatedImage = await res.image.save();
-    // res.json(updatedImage);  
     console.log("update image");
     res.send(updatedImage);
   } catch (err) {
     res.status(400).json({message: err.message});
   }
-  // Image.updateByPhoneNum(req.params.phoneNum, req.body)
-  //   .then(image => res.send(image))
-  //   .catch(err => res.status(500).send(err));
 });
 
 // Delete by id
@@ -195,9 +192,6 @@ router.delete('/delete/:id', getImage, async (req, res) => {
   } catch (err) {
     res.status(500).json({message: err.message});
   }
-  // Image.deleteByPhoneNum(req.params.phoneNum)
-  //   .then(() => res.sendStatus(200))
-  //   .catch(err => res.status(500).send(err));
 });
 
 // Delete All

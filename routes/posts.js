@@ -1,28 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const Contact = require('../models/contact');
+const Post = require('../models/post');
 
 // Get All
 router.get('/getAll', async (req, res) => {
   try {
-    const contacts = await Contact.find();
-    // res.json(contacts);
+    const posts = await Post.find();
     console.log("get all 요청했음")
-    console.log(`sent ${contacts}`)
+    console.log(`sent ${posts}`)
     
-    res.send(contacts);
+    res.send(posts);
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
 });
 
 // Get One by id
-router.get('/get/:id', getContact, (req, res) => {
-  console.log(`get one by id\n ${res.contact}`);
-  res.send(res.contact);
+router.get('/get/:id', getPost, (req, res) => {
+  console.log(`get one by id\n ${res.post}`);
+  res.send(res.post);
 });
 
-// Post one contact(with image field too)
+// Post one post(with image field too)
 var multer, storage, path, crypto;
 multer = require('multer')
 path = require('path');
@@ -73,20 +72,20 @@ router.post("/post/:name/:phoneNum",
       console.log(`phoneNum is ${req.params.phoneNum}`);
       console.log(`url is ${req.file.path}`);
       
-      // 여기부턴 contacts
-      const contact = new Contact({
+      // 여기부턴 posts
+      const post = new Post({
         name: req.params.name,
         phoneNum: req.params.phoneNum,
         url: (typeof req.file.path == undefined)? "" : `http://192.249.18.208:3000/images/${req.file.path}`
       })
-      console.log(`after save, name is ${contact.name}`);
-      console.log(`after save, phonenum is ${contact.phoneNum}`);
-      console.log(`after save, url is ${contact.url}`);
+      console.log(`after save, name is ${post.name}`);
+      console.log(`after save, phonenum is ${post.phoneNum}`);
+      console.log(`after save, url is ${post.url}`);
   
       console.log("포스트 성공!!!!!");
-      const newContact = await contact.save();
+      const newPost = await post.save();
       console.log("after save");
-      return res.status(201).json(newContact);
+      return res.status(201).json(newPost);
 
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -97,28 +96,28 @@ router.post("/post/:name/:phoneNum",
 router.put('/put/:id/:name/:phoneNum/:url',
   multer({
     storage: storage
-  }).single('upload'), getContact, async function(req, res) {
+  }).single('upload'), getPost, async function(req, res) {
   if (req.params.name != null) {
-    res.contact.name = req.params.name;
+    res.post.name = req.params.name;
   }
   if (req.params.phoneNum != null) {
-    res.contact.phoneNum = req.params.phoneNum;
+    res.post.phoneNum = req.params.phoneNum;
   }
   if (req.params.url != null) {
     const uptatedImageUrl = `http://192.249.18.208:3000/images/${req.file.path}`;
 
-    res.contact.url = uptatedImageUrl;
+    res.post.url = uptatedImageUrl;
   }
   // url: (typeof req.file.path == undefined)? "" : `http://192.249.18.208:3000/images/${req.file.path}`
   try {
-    const updatedContact = await res.contact.save();
-    console.log("update contact:");
-    console.log(updatedContact);
-    console.log(`after save, name is ${updatedContact.name}`);
-    console.log(`after save, phonenum is ${updatedContact.phoneNum}`);
-    console.log(`after save, url is ${updatedContact.url}\n\n`);
+    const updatedPost = await res.post.save();
+    console.log("update post:");
+    console.log(updatedPost);
+    console.log(`after save, name is ${updatedPost.name}`);
+    console.log(`after save, phonenum is ${updatedPost.phoneNum}`);
+    console.log(`after save, url is ${updatedPost.url}\n\n`);
 
-    res.send(updatedContact);
+    res.send(updatedPost);
 
   } catch (err) {
     res.status(400).json({message: err.message});
@@ -127,13 +126,13 @@ router.put('/put/:id/:name/:phoneNum/:url',
 
 // Delete by id
 const fs = require('fs');
-router.delete('/delete/:id', getContact, async (req, res) => {
+router.delete('/delete/:id', getPost, async (req, res) => {
   try {
-    const fileUrl = res.contact.url;
+    const fileUrl = res.post.url;
     console.log(fileUrl);
     // fs.unlinkSync(__dirname + "/../uploads" + file); //처리하고 싶다... 비동기...
-    console.log(`deleted contact ㅎㅎ\n ${res.contact}`);
-    await res.contact.remove();
+    console.log(`deleted post ㅎㅎ\n ${res.post}`);
+    await res.post.remove();
     res.json({ message: "Deleted image" });
   
   } catch (err) {
@@ -141,11 +140,11 @@ router.delete('/delete/:id', getContact, async (req, res) => {
   }
 });
 
-// Delete All(only contact in DB, 파일시스템에 있는 프로필 이미지는 처리 못하는 중)
+// Delete All(only post in DB, 파일시스템에 있는 프로필 이미지는 처리 못하는 중)
 router.delete('/deleteAll', async (req, res) => {
   try {
-    const contacts = await Contact.remove();
-    res.json(contacts);
+    const posts = await Post.remove();
+    res.json(posts);
     res.json({message: "deleted all~~~"});
     const pathToDelete = `http://192.249.18.208:3000/images/uploads/.`;
     fs.unlinkSync(pathToDelete);
@@ -154,17 +153,17 @@ router.delete('/deleteAll', async (req, res) => {
   }
 });
 
-async function getContact(req, res, next){
-  let contact;
+async function getPost(req, res, next){
+  let post;
   try {
-    contact = await Contact.findById(req.params.id);
-    if (contact == null) {
-      return res.status(404).json({ message: 'Cannot find Contact' });
+    post = await Post.findById(req.params.id);
+    if (post == null) {
+      return res.status(404).json({ message: 'Cannot find post' });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-  res.contact = contact;
+  res.post = post;
   next();
 }
 
